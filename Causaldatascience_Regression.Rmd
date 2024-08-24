@@ -1,0 +1,124 @@
+---
+title: "Stat_R_CasualDS"
+output: html_document
+date: "2024-05-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)    # Loads the ggplot2 package for data visualization
+library(scatterplot3d)    # Loads the scatterplot3d package for creating 3D scatter plots
+library(car)    # Loads the car package for regression analysis and diagnostic plots
+
+```
+
+```{r}
+# We Create two vectors, Aptitude and Performance, with numerical values
+Aptitude <- c(45, 81, 65, 87, 68, 91, 77, 61, 55, 66, 82, 93, 76, 83, 61, 74)
+Performance <- c(56, 74, 56, 81, 75, 84, 68, 52, 57, 82, 73, 90, 67, 79, 70, 66)
+```
+
+
+```{r}
+# We create a data frame named consultant.frame with Aptitude and Performance as columns
+consultant.frame <- data.frame(Aptitude, Performance)
+```
+```{r}
+# We performe simple linear regression, fitting the Performance data based on Aptitude using the lm() function
+C.reg <- lm(Performance ~ Aptitude, data = consultant.frame)
+```
+
+```{r}
+# We print a summary of the linear regression model C.reg
+summary(C.reg)
+
+# We retrieve the coefficients of the linear regression model C.reg
+coefficients(C.reg)
+
+# We calculate the confidence intervals for the coefficients of the linear regression model C.reg
+confint(C.reg)
+
+# We retrieve the fitted values (predicted values) from the linear regression model C.reg
+fitted(C.reg)
+```
+```{r}
+# We retrieve the residuals (deviations between observed and predicted values) from the linear regression model C.reg
+residuals(C.reg)
+```
+
+```{r}
+# We predict the Performance values for new data points with Aptitude values 85 and 62, based on the linear regression model C.reg
+predict(C.reg, data.frame(Aptitude = c(85, 62)))
+```
+
+```{r}
+# PLOTTING THE REGRESSION
+
+# We create a scatter plot of Aptitude against Performance using ggplot2, with points and a fitted line based on linear regression
+ggplot(consultant.frame, aes(x = Aptitude, y = Performance)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+```
+```{r}
+# We create a scatter plot of the fitted values against the residuals of the linear regression model C.reg, with points and a horizontal dashed line at y = 0
+ggplot(C.reg, aes(x = fitted(C.reg), y = residuals(C.reg))) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed")
+```
+```{r}
+# MULTIPLE REGRESSION IN R
+
+# Next, we create a vector named Personality with numerical values for a Multiple Regression
+Personality <- c(9, 15, 11, 15, 14, 19, 12, 10, 9, 14, 15, 14, 16, 18, 15, 12)
+```
+
+```{r}
+# Now we add a column named Personality to the consultant.frame data frame, using the values from the Personality vector
+consultant.frame["Personality"] = Personality
+
+# We perform multiple linear regression, fitting the Performance data based on Aptitude and Personality using the lm() function
+C.multreg <- lm(Performance ~ Aptitude + Personality, data = consultant.frame)
+
+# Prints a summary of the multiple linear regression model C.multreg
+summary(C.multreg)
+```
+
+```{r}
+# Predicts the Performance values for new data points with Aptitude values 85 and 62 and Personality values 14 and 17, based on the multiple linear regression model C.multreg
+predict(C.multreg, data.frame(Aptitude = c(85, 62), Personality = c(14, 17)))
+
+```
+
+```{r}
+# Creates a 3D scatter plot of Performance against Aptitude and Personality using scatterplot3d, with hollow symbols
+splot <- with(consultant.frame, scatterplot3d(Performance ~ Aptitude + Personality, type = "h", pch = 19))
+```
+```{r}
+# INTERACTION EFFECTS IN R
+
+# Generate some sample data
+set.seed(123)
+n <- 100
+x <- rnorm(n)
+dummy <- sample(c(0, 1), n, replace = TRUE)
+y <- 2 + 3*x + 4*dummy + 5*x*dummy + rnorm(n)
+```
+
+```{r}
+# Fit a linear regression model with an interaction term
+model <- lm(y ~ x * dummy)
+
+# Create a data frame for plotting
+df <- data.frame(x = x, dummy = factor(dummy), y = y)
+
+# Plot the interaction effect
+ggplot(df, aes(x = x, y = y, color = dummy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, aes(group = dummy)) +
+  labs(x = "x", y = "y", color = "dummy")
+```
+
